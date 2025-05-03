@@ -4,8 +4,10 @@
 #include <memory>
 #include <iostream>
 
+//------------------------------------------------x------------------------------------------------//
+//                                          Priority Queue
 
-LINKEDLIST* PriorityQ::createLL(void)
+LINKEDLIST* PriorityQ::createLL()
 {
     LINKEDLIST* list = new LINKEDLIST;
     list->head = createNode(-1);
@@ -18,8 +20,8 @@ NODE* PriorityQ::createNode(unsigned appearancesC)
 {
     NODE* newNode = new NODE;
     newNode->appearancesCounter = appearancesC;
-    newNode->next_NODE = newNode;
-    newNode->previous_NODE = newNode;
+    newNode->next_NODE = nullptr;
+    newNode->previous_NODE = nullptr;
     newNode->VECTRIPLE = nullptr;
     
     return newNode;
@@ -34,11 +36,11 @@ NODE* PriorityQ::addNode(unsigned appearancesC, int bucket) {
 
     node->next_NODE = queueVector[bucket]->head->next_NODE;
     node->previous_NODE = queueVector[bucket]->head;
-    
+
     queueVector[bucket]->head->next_NODE->previous_NODE = node;
     queueVector[bucket]->head->next_NODE = node;
     
-    //incrementNodeOnBucket(&node);
+    incrementNodeOnBucket(&node);
     
     return node;
 }
@@ -47,23 +49,29 @@ NODE* PriorityQ::addNode(unsigned appearancesC, int bucket) {
 int PriorityQ::incrementNodeOnBucket(NODE** node) {
     if (!node || !*node || (*node)->appearancesCounter == -1) return -1;
 
-    while ((*node)->next_NODE->appearancesCounter != -1 && (*node)->appearancesCounter > (*node)->next_NODE->appearancesCounter) {
-        
-        NODE* temp = *node;
-        NODE* nextNode = temp->next_NODE;
+    NODE* current = *node;
+    NODE* temp = current;
 
-        temp->previous_NODE->next_NODE = nextNode;
-        nextNode->next_NODE->previous_NODE = temp;
-        
-        temp->next_NODE = nextNode->next_NODE;
-        nextNode->previous_NODE = temp->previous_NODE;
-        nextNode->next_NODE = temp;
-        temp->previous_NODE = nextNode;
-
-        *node = nextNode;
+    while (temp->next_NODE && current->appearancesCounter > temp->next_NODE->appearancesCounter) {
+        temp = temp->next_NODE;
     }
+
+    if (temp == current) return 0; 
+
+    current->previous_NODE->next_NODE = current->next_NODE;
+    current->next_NODE->previous_NODE = current->previous_NODE;
+
+    current->next_NODE = temp->next_NODE;
+    current->previous_NODE = temp;
+
+    temp->next_NODE->previous_NODE = current;
+    temp->next_NODE = current;
+
     return 0;
 }
+
+
+
 int PriorityQ::removeNode(NODE** node)
 {
         if (!node || !*node) return -1;
@@ -85,43 +93,42 @@ int PriorityQ::changeBucket(NODE** node) {
 
     unsigned newBucket = std::min((*node)->appearancesCounter, queueVectorSize - 1);
     
-    // Verifica se já está no bucket correto
-    if ((*node)->previous_NODE->appearancesCounter == -1 && 
-        (*node)->next_NODE->appearancesCounter == -1 && 
-        queueVector[newBucket]->head->next_NODE == *node || queueVector[newBucket]->head->next_NODE->appearancesCounter > queueVectorSize)
+    if ((queueVector[newBucket]->head->appearancesCounter == (*node)->appearancesCounter || (*node)->appearancesCounter >= queueVectorSize - 1))
     {    
         return 0;
     }
 
-    // Remove da lista atual
     (*node)->previous_NODE->next_NODE = (*node)->next_NODE;
     (*node)->next_NODE->previous_NODE = (*node)->previous_NODE;
 
     (*node)->next_NODE = queueVector[newBucket]->head->next_NODE;
     (*node)->previous_NODE = queueVector[newBucket]->head;
-    queueVector[newBucket]->head->next_NODE->previous_NODE = *node;
+    if(queueVector[newBucket]->head->next_NODE)
+    {
+        queueVector[newBucket]->head->next_NODE->previous_NODE = *node;
+    }
     queueVector[newBucket]->head->next_NODE = *node;
 
     return 0;
 }
 
-int PriorityQ::printLL(int Pos) {
-    if (Pos < 0 || Pos >= static_cast<int>(queueVectorSize)) {
-        std::cout << "Bucket inválido: " << Pos << std::endl;
+int PriorityQ::printLL(int bucket) {
+    if (bucket < 0 || bucket >= static_cast<int>(queueVectorSize)) {
+        std::cout << "Bucket inválido: " << bucket << std::endl;
         return -1;
     }
 
-    LINKEDLIST* list = queueVector[Pos];
+    LINKEDLIST* list = queueVector[bucket];
     NODE* curr = list->head->next_NODE;
 
-    std::cout << "Bucket [" << Pos << "]: ";
+    std::cout << "Bucket [" << bucket << "]: ";
 
-    if (curr == list->head) {
+    if (curr == nullptr) {
         std::cout << "[vazia]" << std::endl;
         return 0;
     }
 
-    while (curr != list->head) {
+    while (curr != nullptr && curr->appearancesCounter != -1) {
         std::cout << curr->appearancesCounter << " ";
         curr = curr->next_NODE;
     }
@@ -129,3 +136,24 @@ int PriorityQ::printLL(int Pos) {
     std::cout << std::endl;
     return 0;
 }
+
+
+
+
+
+
+//------------------------------------------------x------------------------------------------------//
+//                                           String Array
+
+
+VECT* stringArray::createVecTriple(char symbolString)
+{
+    VECT* vectTriple = new VECT;
+
+    vectTriple->symbol=symbolString;
+    vectTriple->next = nullptr;
+    vectTriple->previous = nullptr;
+
+    return vectTriple;
+}
+

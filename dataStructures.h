@@ -5,10 +5,11 @@
 #include <list>
 #include <memory>
 #include <math.h>
+#include <string>
 
 struct VECT
 {
-    int symbol;
+    char symbol;
     VECT* next;
     VECT* previous;
 };
@@ -24,6 +25,12 @@ struct NODE
 struct LINKEDLIST
 {
     NODE* head;
+};
+
+struct PAIR
+{
+    int symbol_LEFT;
+    int symbol_RIGHT;
 };
 
 class PriorityQ
@@ -76,15 +83,68 @@ public:
     
     
     //Functions
-    LINKEDLIST* createLL(void);
+    LINKEDLIST* createLL();
     NODE* createNode(unsigned appearancesC);
     NODE* addNode(unsigned appearancesC, int pos);
     int removeNode(NODE** node);
     int changeBucket(NODE** node);
     int incrementNodeOnBucket(NODE** node);
-    int printLL(int Pos); //[DEBUG]
+    int printLL(int Pos);
     LINKEDLIST** queueVector;
 
 };
 
-#endif
+class stringArray
+{
+private:
+
+    unsigned stringSize;
+    std::string mainString;
+    VECT** stringVector;
+
+public:
+
+    //Constructor
+    stringArray(unsigned stringSize, std::string str = "") : stringSize(stringSize), mainString(str)
+    {
+
+        stringVector = new VECT*[stringSize]();
+        for(int i = 0; i < stringSize; i++)
+        {
+            stringVector[i] = createVecTriple(str[i]);
+        }
+    }
+
+    //Destructor
+    ~stringArray()
+    {
+        for(int i = 0; i< stringSize; i++)
+        {
+            delete stringVector[i];
+        }
+        delete[] stringVector;
+    }
+    
+    //Setter
+    void setString(std::string mainStr)
+    {
+        mainString = mainStr;
+    }
+    
+    //Getter
+    std::string getString()
+    {
+        return mainString;
+    };
+
+    VECT** getVectorizedString()
+    {
+        return stringVector;
+    };
+    
+    VECT* createVecTriple(char);
+    PAIR link(PAIR pair);
+
+};
+
+#endif;

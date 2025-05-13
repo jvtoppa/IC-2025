@@ -1,43 +1,42 @@
-    #include <iostream>
-    #include "dataStructures.h"
-    #include <time.h>
+#include <iostream>
+#include <climits>
+#include "dataStructures.h" 
+#define INVALID_SYMBOL 10000
 
-    int main()
-    {
-        PriorityQ pq3(100);
-
-        for (int i = 0; i < 5; i++) {
-            int randomValue = std::rand() % 100000 + 10;
-            pq3.addNode(randomValue, 9);
-        }
-    
-        pq3.printLL(9);  
-
-
-        //----------------------------------x-------------------------------------------------//
-        std::string teste;
-        getline(std::cin, teste);
-        stringArray sa(teste.size(), teste);
-    
-        std::cout << "String original: " << sa.getString() << "\n";
-        std::cout << "Símbolos armazenados:\n";
-    
-        VECT** stringComplete = sa.getVectorizedString();
-
-        for (unsigned i = 0; i < teste.size(); i++) {
-            if(stringComplete[i]->previous == nullptr)
-            {
-                std::cout << "[-";
-            }
-            std::cout << stringComplete[i]->symbol;
-            if(stringComplete[i]->next == nullptr)
-            {
-                std::cout << "-] ";
-            }
-        }
-        std::cout << std::endl;
-    
-    return 0;
-
-    
+void printChain(const structureManager& manager) {
+    std::cout << "Cadeia de triplas: ";
+    VECT* current = manager.arr.getVectorizedString();
+    VECT* also = current;
+    while (current != also + 19) {
+        std::cout << static_cast<char>(current->symbol) << " "; 
+        current = current + 1; 
     }
+    std::cout << "\n";
+}
+
+int main() {
+    std::string testStr = "baazazababababzaza";
+    structureManager manager(testStr); 
+
+    manager.countPairs();  
+    manager.linkArray();   
+
+
+    std::cout << "Fila de Prioridade após countPairs() e linkArray():\n";
+    manager.pq.printAll(); 
+    printChain(manager);
+    manager.htp.printAll();
+
+    PAIR testPair('a', 'b');
+
+
+    manager.iterativePairSubstitution(testPair, 'S');
+
+    std::cout << "\nFila de Prioridade após substituição:\n";
+    manager.pq.printAll(); 
+    printChain(manager);  
+    manager.htp.printAll();
+ 
+    return 0;
+}
+

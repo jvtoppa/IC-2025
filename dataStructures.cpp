@@ -344,35 +344,22 @@ void structureManager::decreaseAdjacents(VECT* vect)
 
 }
 
-int structureManager::replace(int variable, PAIR p)
+int structureManager::replace(int variable, VECT* vect)
 {
-    NODE* node = this->htp.getPairNode(p);
-    if (!node || !node->VECTRIPLE) return 0;
-
-    VECT* pairPtr = node->VECTRIPLE;
+    VECT* pairPtr = vect;
     VECT* base = this->arr.getVectorizedString();
 
-    for (pairPtr; pairPtr != nullptr; pairPtr = pairPtr->next)
+    int idx = pairPtr - base;
+
+    int nextIdx = idx + 1;
+    
+    while (base[nextIdx].symbol == INVALID_SYMBOL && nextIdx < (int)this->arr.getStringSize())
     {
-        int idx = pairPtr - base;
-
-        if (idx < 0 || idx + 1 >= (int)this->arr.getStringSize()) continue;
-
-        if (base[idx].symbol == INVALID_SYMBOL || base[idx + 1].symbol == INVALID_SYMBOL)
-        {
-            continue;
-        }
-
-        int nextIdx = idx + 1;
-        
-        while (base[nextIdx].symbol == INVALID_SYMBOL && nextIdx < (int)this->arr.getStringSize())
-        {
-            nextIdx++;
-        }
-
-        base[idx].symbol = variable;           
-        base[nextIdx].symbol = INVALID_SYMBOL;    
+        nextIdx++;
     }
+
+    base[idx].symbol = variable;           
+    base[nextIdx].symbol = INVALID_SYMBOL;    
 
     return variable;
 }
@@ -410,30 +397,25 @@ void structureManager::increaseNewPairs(int variable, PAIR p)
     }
 }
 */
-void structureManager::increaseNewPairs(PAIR p)
+void structureManager::increaseNewPairs(VECT* vect)
 {
-    VECT* vect = this->htp.getPairNode(p)->VECTRIPLE;
     VECT* vectCopy = vect;
     unsigned end = this->arr.getStringSize();
     VECT* start = this->arr.getVectorizedString();
-    for (; vect != nullptr; vect = vect->next)
-    {
-        VECT* left = vect - 1;
-        while (left >= start && left->symbol == INVALID_SYMBOL) left--;
-        if (left >= start && left->symbol != INVALID_SYMBOL)
-            {
-                PAIR leftPair(left->symbol, vectCopy->symbol);
-                insert(leftPair);
-            }
-        VECT* right = vect + 1;
-        while (right <= (start + end) && right->symbol == INVALID_SYMBOL) right++;
-        if (right <= (start + end) && right->symbol != INVALID_SYMBOL)
-            {
-                PAIR rightPair(vectCopy->symbol, right->symbol);
-                insert(rightPair);
-            }    
-    }
-    
+    VECT* left = vect - 1;
+    while (left >= start && left->symbol == INVALID_SYMBOL) left--;
+    if (left >= start && left->symbol != INVALID_SYMBOL)
+        {
+            PAIR leftPair(left->symbol, vectCopy->symbol);
+            insert(leftPair);
+        }
+    VECT* right = vect + 1;
+    while (right <= (start + end) && right->symbol == INVALID_SYMBOL) right++;
+    if (right <= (start + end) && right->symbol != INVALID_SYMBOL)
+        {
+            PAIR rightPair(vectCopy->symbol, right->symbol);
+            insert(rightPair);
+        }    
 
 }
 
@@ -444,10 +426,10 @@ void structureManager::iterativePairSubstitution(PAIR p, int substitutionVar) //
     for(i; i != nullptr; i = i->next)
     {
        this->decreaseAdjacents(i);
+       this->replace(substitutionVar, i);
+       this->increaseNewPairs(i);
+       //substitutionVar++;
     }   
-    this->replace(substitutionVar, p);
-    this->increaseNewPairs(p);
-    substitutionVar++;
 }
 //TODO: mudar o for ali em cima 
 

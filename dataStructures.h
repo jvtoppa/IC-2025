@@ -279,8 +279,8 @@ class structureManager
     void decreaseAppearance(PAIR p);
     std::vector<VECT*> findAdjacents(VECT* vect);
     void decreaseAdjacents(VECT* vect);
-    int replace(int variable, PAIR p);
-    void increaseNewPairs(PAIR p);
+    int replace(int variable, VECT* vect);
+    void increaseNewPairs(VECT* vect);
     void iterativePairSubstitution(PAIR p, int);
 };
 
